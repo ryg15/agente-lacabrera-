@@ -1,0 +1,10 @@
+{
+  "name": "agente-lacabrera",
+  "version": "1.0.0",
+  "description": "Agente AI La Cabrera Miami",
+  "main": "index.js",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0",
+    "@supabase/supabase-js": "^2.43.0"
+  }
+}
