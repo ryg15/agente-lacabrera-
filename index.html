@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Facu · La Cabrera Miami</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -91,6 +91,7 @@
     .chat-header {
       background: #1E1A16;
       padding: 14px 18px;
+      padding-top: max(14px, env(safe-area-inset-top));
       display: flex;
       align-items: center;
       gap: 12px;
@@ -230,6 +231,9 @@
       align-items: center;
       gap: 8px;
       padding: 10px 12px;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     .input-row input {
@@ -267,6 +271,7 @@
       font-size: 9px;
       color: #2A2420;
       padding: 4px;
+      padding-bottom: max(4px, env(safe-area-inset-bottom));
       letter-spacing: 0.05em;
     }
   </style>
