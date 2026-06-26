@@ -213,7 +213,7 @@
     max-width: 85%;
     padding: 10px 14px;
     border-radius: 12px;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.55;
     animation: fadeUp 0.2s ease;
   }
@@ -304,10 +304,13 @@
     gap: 10px;
     align-items: flex-end;
     background: #141210;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 
   .chat-input {
     flex: 1;
+    min-width: 0;
     background: #1E1A16;
     border: 1px solid #2A2420;
     border-radius: 10px;
