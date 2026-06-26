@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Facu · La Cabrera Miami</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -222,6 +222,20 @@
     document.getElementById('inp').value = text;
     send();
   }
+</script>
+<script>
+var startX, startY;
+document.addEventListener('touchstart', function(e) {
+  startX = e.touches[0].clientX;
+  startY = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener('touchmove', function(e) {
+  var dx = Math.abs(e.touches[0].clientX - startX);
+  var dy = Math.abs(e.touches[0].clientY - startY);
+  if (dx > dy) {
+    e.preventDefault();
+  }
+}, { passive: false });
 </script>
 </body>
 </html>
