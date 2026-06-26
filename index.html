@@ -161,6 +161,186 @@
     document.getElementById('landing').style.display = 'flex';
   }
 
+  // MENU POR CATEGORIAS
+  const MENU = {
+    "🥩 Cortes": `Todos nuestros cortes son Certified Angus Beef:
+
+Short Ribs 28oz — $59 | 18oz — $39
+New York Strip 21oz — $56 | 14oz — $42 | 28oz Grand — $74
+New York Strip con queso azul 14oz — $42
+Outside Skirt 21oz — $62 | 14oz — $43
+Ribeye CAB 21oz — $73 | 14oz — $50
+Filet Mignon 21oz — $112 | 14oz — $75
+Filet Mignon con jamón, queso y huevo 14oz — $82
+T-Bone CAB 28oz — $98
+Tomahawk CAB 48oz — $168 (ideal para 2-3 personas)
+Cowboy Bone-In Rib Eye 28oz — $98
+Flap Steak 21oz — $52 | 14oz — $36
+Brochette de lomo — $63
+Wagyu y Dry Aged — consultanos`,
+
+    "🍖 Entradas": `De la parrilla:
+Chorizo — $17
+Morcilla — $17
+Mollejas a la parrilla — $42
+Provoleta argentina — $19
+Provoleta especial (tomates secos y jamón crudo) — $22
+
+Del Josper (horno a leña):
+Gambas pil-pil (ajo, hongos y aceite de oliva) — $20
+Gambas a la parrilla (ajo y perejil) — $18
+
+De la cocina:
+Empanadas de choclo, carne o veggie x4 — $23 | x2 — $12
+Burrata sobre tartar de tomate y palta — $23`,
+
+    "🍝 Pastas": `Ravioles de hongos y trufa con tomates mantecados — $25
+Ravioles de ricota y espinaca con salsa de tomate y crema — $24
+Ñoquis soufflé con salsa Triplo Burro — $24
+Ñoquis soufflé con crema de tres quesos — $23
+Penne Rigate con pesto cremoso — $19
+Spaghetti con salsa de mariscos — $29`,
+
+    "🥗 Ensaladas": `César de pollo con panceta — $25
+Rúcula y parmesano — $18
+Palta, palmito y tomate — $19
+Peras y queso de cabra con rúcula, frutos secos y miel — $18
+Tataki de atún con mix de verdes, tomate, frutos secos y brie — $25
+Mixta (mix de verdes, tomate, palta y cebolla) — $17`,
+
+    "🍟 Guarniciones": `Brócoli al vapor — $8
+Macarrones con queso — $8
+Papas fritas — $8
+Papas fritas con cebolla caramelizada — $10
+Papas fritas con huevo revuelto — $10
+Papas fritas con queso azul — $10
+Puré de calabaza — $8
+Puré de papas — $8
+Puré mixto — $8
+Verduras a la parrilla — $10`,
+
+    "🍮 Postres": `Flan casero especial — $13
+Crepas de dulce de leche — $13
+Torta de galletitas y dulce de leche — $13
+Crème brûlée — $13
+Port Salut con membrillo y batata — $14
+Cheesecake de dulce de leche — $15
+Volcán de chocolate con helado — $15
+Degustación de 5 postres — $36
+Degustación de helados — $29
+Bocha de helado — $8`,
+
+    "🐟 Pescados": `Del Josper (horno a leña):
+Salmón a la parrilla — $38
+Atún a la parrilla con verduras — $36
+Pescado del día — consultanos
+Pulpo a la parrilla con verduras (1/2) — $38`,
+
+    "🍗 Pollo y milanesas": `Pechuga con queso ahumado — $24
+Pechuga con manteca de hierbas — $24
+Pollo a la parrilla — $22
+Milanesa de Outside Skirt — $40
+Milanesa napolitana de Outside Skirt — $46
+Milanesa napolitana de New York Strip — $40
+Milanesa napolitana de pollo — $24`
+  };
+
+  function renderMenuSection(cat, texto) {
+    const msgs = document.getElementById('msgs');
+    const row = document.createElement('div');
+    row.className = 'row agent';
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:#1E1A16;border:1px solid #2A2420;border-radius:12px;overflow:hidden;max-width:90%;min-width:260px;';
+
+    // Foto
+    // Header
+    const header = document.createElement('div');
+    header.style.cssText = 'background:#A52020;padding:10px 14px;font-family:Playfair Display,serif;font-size:14px;font-weight:600;color:#fff;';
+    header.textContent = cat;
+    card.appendChild(header);
+
+    // Parsear líneas
+    const lineas = texto.trim().split('\n');
+    let seccionActual = null;
+
+    lineas.forEach(linea => {
+      linea = linea.trim();
+      if (!linea) return;
+
+      // Es un subtítulo (no tiene precio)
+      if (!linea.includes('—') && !linea.includes('$') && linea.endsWith(':')) {
+        const sub = document.createElement('div');
+        sub.style.cssText = 'padding:8px 14px 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#A52020;border-top:1px solid #2A2420;margin-top:4px;';
+        sub.textContent = linea.replace(':', '');
+        card.appendChild(sub);
+        return;
+      }
+
+      // Es un plato con precio
+      if (linea.includes('$') || linea.includes('—')) {
+        const partes = linea.split('—');
+        const nombre = partes[0].trim();
+        const precio = partes[1] ? partes[1].trim() : '';
+
+        const item = document.createElement('div');
+        item.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;padding:8px 14px;border-bottom:1px solid rgba(42,36,32,0.5);gap:8px;';
+
+        const n = document.createElement('span');
+        n.style.cssText = 'font-size:13px;color:#F2E8D9;flex:1;';
+        n.textContent = nombre;
+
+        const p = document.createElement('span');
+        p.style.cssText = 'font-size:13px;color:#A52020;font-weight:600;white-space:nowrap;flex-shrink:0;';
+        p.textContent = precio;
+
+        item.appendChild(n);
+        item.appendChild(p);
+        card.appendChild(item);
+        return;
+      }
+
+      // Texto normal
+      const txt = document.createElement('div');
+      txt.style.cssText = 'padding:6px 14px;font-size:12px;color:#9E9590;';
+      txt.textContent = linea;
+      card.appendChild(txt);
+    });
+
+    row.appendChild(card);
+    msgs.appendChild(row);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function mostrarMenuCategorias() {
+    const msgs = document.getElementById('msgs');
+    const row = document.createElement('div');
+    row.className = 'row agent';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = '¿Qué sección del menú querés ver?';
+    row.appendChild(bubble);
+    msgs.appendChild(row);
+
+    const brow = document.createElement('div');
+    brow.className = 'row agent';
+    const btns = document.createElement('div');
+    btns.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;padding:4px 0;max-width:90%;';
+    Object.keys(MENU).forEach(cat => {
+      const btn = document.createElement('button');
+      btn.textContent = cat;
+      btn.style.cssText = 'background:#1E1A16;border:1px solid #A52020;color:#F2E8D9;font-size:12px;padding:7px 12px;border-radius:20px;cursor:pointer;flex-shrink:0;';
+      btn.onclick = () => {
+        addMsg('user', cat);
+        renderMenuSection(cat, MENU[cat]);
+      };
+      btns.appendChild(btn);
+    });
+    brow.appendChild(btns);
+    msgs.appendChild(brow);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
   function linkify(text) {
     return text
       .replace(/\n/g, '<br>')
@@ -205,6 +385,19 @@
     loading = true;
     document.getElementById('sbtn').disabled = true;
     showTyping();
+    // Detectar si piden el menú
+    const menuKeywords = ['menú', 'menu', 'carta', 'platos', 'qué tienen', 'que tienen', 'ver menú', 'ver menu', 'ver el menú'];
+    const esMenuRequest = menuKeywords.some(k => text.toLowerCase().includes(k));
+
+    if (esMenuRequest) {
+      hideTyping();
+      mostrarMenuCategorias();
+      history.push({ role: 'assistant', content: '¿Qué sección del menú querés ver?' });
+      loading = false;
+      document.getElementById('sbtn').disabled = false;
+      return;
+    }
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
