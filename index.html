@@ -1,36 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Facu · La Cabrera Miami</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #0A0806; }
+
+    /* LANDING */
+    #landing {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      background: radial-gradient(ellipse at 30% 50%, rgba(165,32,32,0.08) 0%, transparent 60%);
+    }
+    .brand-name { font-family:'Playfair Display',serif; font-size: clamp(36px,10vw,64px); font-weight:700; color:#A52020; letter-spacing:0.06em; margin-bottom:6px; }
+    .brand-sub { font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#6B6560; margin-bottom:4px; }
+    .brand-addr { font-size:11px; color:#4A4540; letter-spacing:0.06em; margin-bottom:36px; }
+    .brand-desc { font-size:15px; color:#9E9590; max-width:360px; line-height:1.7; margin-bottom:32px; }
+    .open-btn { background:transparent; border:1px solid #A52020; color:#A52020; font-family:'Playfair Display',serif; font-size:14px; letter-spacing:0.12em; text-transform:uppercase; padding:14px 36px; border-radius:4px; cursor:pointer; }
+    .open-btn:hover { background:#A52020; color:#fff; }
+
+    /* CHAT */
+    #chat {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      flex-direction: column;
+      background: #141210;
+      overflow: hidden;
+    }
+    #chat.open { display: flex; }
+
+    /* HEADER */
+    .hdr {
+      background: #1E1A16;
+      border-bottom: 1px solid #2A2420;
+      padding: 12px 16px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .av {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #A52020;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: #fff;
+      flex-shrink: 0; position: relative;
+    }
+    .av::after { content:''; position:absolute; bottom:1px; right:1px; width:10px; height:10px; background:#40916C; border-radius:50%; border:2px solid #1E1A16; }
+    .hdr-info { flex: 1; min-width: 0; }
+    .hdr-name { font-family:'Playfair Display',serif; font-size:16px; font-weight:600; color:#F2E8D9; }
+    .hdr-status { font-size:11px; color:#40916C; }
+    .hdr-close { background:none; border:none; color:#6B6560; font-size:22px; cursor:pointer; padding:0 4px; flex-shrink:0; }
+
+    /* MESSAGES */
+    #msgs {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .row { display: flex; width: 100%; }
+    .row.agent { justify-content: flex-start; }
+    .row.user { justify-content: flex-end; }
+    .bubble {
+      max-width: 78%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+    .row.agent .bubble { background:#1E1A16; color:#F2E8D9; border:1px solid #2A2420; border-bottom-left-radius:4px; }
+    .row.user .bubble { background:#A52020; color:#fff; border-bottom-right-radius:4px; }
+
+    /* TYPING */
+    .typing { display:flex; gap:4px; padding:12px 14px; background:#1E1A16; border:1px solid #2A2420; border-radius:16px; border-bottom-left-radius:4px; width:fit-content; }
+    .typing span { width:7px; height:7px; background:#A52020; border-radius:50%; animation:bounce 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay:.2s; }
+    .typing span:nth-child(3) { animation-delay:.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
+
+    /* FOOTER */
+    .ftr { flex-shrink: 0; background:#141210; border-top:1px solid #2A2420; padding-bottom: env(safe-area-inset-bottom); }
+    .quick { display:flex; gap:6px; padding:8px 12px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; }
+    .quick::-webkit-scrollbar { display:none; }
+    .qbtn { flex-shrink:0; background:#1E1A16; border:1px solid #2A2420; color:#A52020; font-size:11px; padding:5px 10px; border-radius:20px; cursor:pointer; white-space:nowrap; }
+    .inp-row { display:flex; align-items:center; gap:8px; padding:8px 12px; }
+    .inp-row input { flex:1; min-width:0; padding:10px 14px; border:1px solid #2A2420; border-radius:24px; font-size:15px; outline:none; background:#1E1A16; color:#F2E8D9; font-family:'Inter',sans-serif; }
+    .inp-row input::placeholder { color:#6B6560; }
+    .inp-row input:focus { border-color:#A52020; }
+    .sbtn { width:40px; height:40px; min-width:40px; flex-shrink:0; border-radius:50%; background:#A52020; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; }
+    .sbtn:disabled { opacity:.4; }
+    .powered { text-align:center; font-size:9px; color:#2A2420; padding:4px; }
+  </style>
+</head>
+<body>
+
+<div id="landing">
+  <div class="brand-name">La Cabrera</div>
+  <div class="brand-sub">Parrilla Argentina · Miami</div>
+  <div class="brand-addr">17100 Collins Ave, Sunny Isles Beach · FL 33160</div>
+  <p class="brand-desc">Bienvenido a La Cabrera Miami. Hablá con Facu, nuestro asistente virtual, para reservas, consultas sobre el menú y más.</p>
+  <button class="open-btn" onclick="openChat()">Hablar con Facu</button>
+</div>
+
+<div id="chat">
+  <div class="hdr">
+    <div class="av">F</div>
+    <div class="hdr-info">
+      <div class="hdr-name">Facu</div>
+      <div class="hdr-status">En línea ahora</div>
+    </div>
+    <button class="hdr-close" onclick="closeChat()">✕</button>
+  </div>
+
+  <div id="msgs"></div>
+
+  <div class="ftr">
+    <div class="quick" id="quick">
+      <button class="qbtn" onclick="sq('Ver el menú')">🥩 Menú</button>
+      <button class="qbtn" onclick="sq('Hacer una reserva')">📅 Reservar</button>
+      <button class="qbtn" onclick="sq('¿Cuáles son los horarios?')">🕐 Horarios</button>
+      <button class="qbtn" onclick="sq('¿Cómo llego?')">📍 Ubicación</button>
+    </div>
+    <div class="inp-row">
+      <input type="text" id="inp" placeholder="Escribí tu consulta..." onkeydown="if(event.key==='Enter')send()">
+      <button class="sbtn" id="sbtn" onclick="send()">➤</button>
+    </div>
+    <div class="powered">Powered by RBS · Roxana Brand Studios</div>
+  </div>
+</div>
+
 <script>
   let loading = false;
   let history = [];
 
-  // Fix teclado iPhone
-  const chat = document.getElementById('chat');
-  const ftr = document.querySelector('.ftr');
-  
-  window.addEventListener('resize', () => {
-    if (document.getElementById('chat').classList.contains('open')) {
-      const vh = window.innerHeight;
-      chat.style.height = vh + 'px';
-    }
-  });
-
-  document.getElementById('inp').addEventListener('focus', () => {
-    setTimeout(() => {
-      const vh = window.innerHeight;
-      chat.style.height = vh + 'px';
-      document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
-    }, 300);
-  });
-
-  document.getElementById('inp').addEventListener('blur', () => {
-    setTimeout(() => {
-      chat.style.height = '100%';
-    }, 100);
-  });
-
   function openChat() {
     document.getElementById('landing').style.display = 'none';
     document.getElementById('chat').classList.add('open');
-    chat.style.height = window.innerHeight + 'px';
     if (history.length === 0) {
       setTimeout(() => addMsg('agent', '¡Bienvenido a La Cabrera Miami! Soy Facu, tu asistente. 🥩\n\n¿En qué te puedo ayudar hoy?'), 400);
     }
@@ -87,12 +207,12 @@
       });
       const data = await res.json();
       hideTyping();
-      const reply = data.content?.[0]?.text || data.response || 'Perdoná, hubo un problema.';
+      const reply = data.response || 'Perdoná, hubo un problema. ¿Podés intentarlo de nuevo?';
       history.push({ role: 'assistant', content: reply });
       addMsg('agent', reply);
     } catch(e) {
       hideTyping();
-      addMsg('agent', 'Perdoná, no pude conectarme. Intentá de nuevo.');
+      addMsg('agent', 'Perdoná, no pude conectarme. Intentá de nuevo en un momento.');
     }
     loading = false;
     document.getElementById('sbtn').disabled = false;
@@ -103,3 +223,5 @@
     send();
   }
 </script>
+</body>
+</html>
