@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facu · La Cabrera Miami</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0A0806;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* DEMO PAGE */
+  .demo-bg {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(200,149,58,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(139,26,26,0.08) 0%, transparent 50%);
+  }
+
+  .demo-content {
+    text-align: center;
+    color: #F2E8D9;
+    z-index: 1;
+    padding: 40px;
+  }
+
+  .demo-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: #C8953A;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .demo-sub {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #6B6560;
+    margin-bottom: 40px;
+  }
+
+  .demo-desc {
+    font-size: 16px;
+    color: #9E9590;
+    max-width: 400px;
+    line-height: 1.7;
+    margin: 0 auto 48px;
+  }
+
+  /* CHAT BUTTON */
+  .chat-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #C8953A, #E8B866);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 4px 24px rgba(200,149,58,0.4);
+    z-index: 1000;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .chat-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 32px rgba(200,149,58,0.5);
+  }
+
+  .chat-btn .notif {
+    position: absolute;
+    top: -3px; right: -3px;
+    width: 18px; height: 18px;
+    background: #C0392B;
+    border-radius: 50%;
+    font-size: 10px;
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600;
+    border: 2px solid #0A0806;
+  }
+
+  /* CHAT WINDOW */
+  .chat-window {
+    position: fixed;
+    bottom: 100px;
+    right: 28px;
+    width: 380px;
+    height: 560px;
+    background: #141210;
+    border: 1px solid #2A2420;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    z-index: 999;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .chat-window.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+  }
+
+  /* HEADER */
+  .chat-header {
+    background: #1E1A16;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #2A2420;
+  }
+
+  .agent-avatar {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, #C8953A, #8B1A1A);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #F2E8D9;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .agent-avatar::after {
+    content: '';
+    position: absolute;
+    bottom: 1px; right: 1px;
+    width: 10px; height: 10px;
+    background: #40916C;
+    border-radius: 50%;
+    border: 2px solid #1E1A16;
+  }
+
+  .agent-info { flex: 1; }
+
+  .agent-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #F2E8D9;
+  }
+
+  .agent-status {
+    font-size: 11px;
+    color: #40916C;
+    margin-top: 1px;
+  }
+
+  .header-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    color: #C8953A;
+    letter-spacing: 0.08em;
+    text-align: right;
+  }
+
+  /* MESSAGES */
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: #2A2420; border-radius: 2px; }
+
+  .msg {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.55;
+    animation: fadeUp 0.2s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.agent {
+    background: #1E1A16;
+    color: #F2E8D9;
+    border: 1px solid #2A2420;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg.user {
+    background: linear-gradient(135deg, #C8953A, #A07030);
+    color: #0A0806;
+    font-weight: 500;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg-time {
+    font-size: 10px;
+    color: #6B6560;
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  /* TYPING */
+  .typing {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px;
+    background: #1E1A16;
+    border: 1px solid #2A2420;
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+    width: fit-content;
+  }
+
+  .typing span {
+    width: 7px; height: 7px;
+    background: #C8953A;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* QUICK REPLIES */
+  .quick-replies {
+    padding: 8px 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-top: 1px solid #1E1A16;
+  }
+
+  .quick-btn {
+    background: #1E1A16;
+    border: 1px solid #2A2420;
+    color: #C8953A;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .quick-btn:hover { background: #2A2420; border-color: #C8953A; }
+
+  /* INPUT */
+  .chat-input-wrap {
+    padding: 12px 16px;
+    border-top: 1px solid #2A2420;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: #141210;
+  }
+
+  .chat-input {
+    flex: 1;
+    background: #1E1A16;
+    border: 1px solid #2A2420;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #F2E8D9;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    resize: none;
+    min-height: 40px;
+    max-height: 100px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .chat-input:focus { border-color: #C8953A; }
+  .chat-input::placeholder { color: #6B6560; }
+
+  .send-btn {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, #C8953A, #A07030);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    color: #0A0806;
+    flex-shrink: 0;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+
+  .send-btn:hover { transform: scale(1.05); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* FOOTER */
+  .chat-footer {
+    padding: 6px;
+    text-align: center;
+    font-size: 9px;
+    color: #2A2420;
+    background: #0A0806;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 420px) {
+    .chat-window { width: calc(100vw - 24px); right: 12px; bottom: 90px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bg"></div>
+<div class="demo-content">
+  <div class="demo-logo">La Cabrera</div>
+  <div class="demo-sub">Parrilla Argentina · Miami</div>
+  <p class="demo-desc">Bienvenido a La Cabrera Miami. Hablá con Facu, nuestro asistente virtual, para reservas, consultas sobre el menú y más.</p>
+</div>
+
+<!-- CHAT BUTTON -->
+<button class="chat-btn" onclick="toggleChat()" id="chatBtn">
+  🥩
+  <span class="notif" id="notifBadge">1</span>
+</button>
+
+<!-- CHAT WINDOW -->
+<div class="chat-window" id="chatWindow">
+  <div class="chat-header">
+    <div class="agent-avatar">F</div>
+    <div class="agent-info">
+      <div class="agent-name">Facu</div>
+      <div class="agent-status">● En línea ahora</div>
+    </div>
+    <div class="header-brand">LA CABRERA<br>MIAMI</div>
+  </div>
+
+  <div class="chat-messages" id="chatMessages"></div>
+
+  <div class="quick-replies" id="quickReplies">
+    <button class="quick-btn" onclick="sendQuick('Ver el menú')">🥩 Ver menú</button>
+    <button class="quick-btn" onclick="sendQuick('Hacer una reserva')">📅 Reservar</button>
+    <button class="quick-btn" onclick="sendQuick('¿Cuáles son los horarios?')">🕐 Horarios</button>
+    <button class="quick-btn" onclick="sendQuick('¿Cómo llego?')">📍 Ubicación</button>
+  </div>
+
+  <div class="chat-input-wrap">
+    <textarea
+      class="chat-input"
+      id="chatInput"
+      placeholder="Escribí tu consulta..."
+      rows="1"
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+
+  <div class="chat-footer">Powered by RBS · Roxana Brand Studios</div>
+</div>
+
+<script>
+  let isOpen = false;
+  let isLoading = false;
+  let conversationHistory = [];
+
+  function toggleChat() {
+    isOpen = !isOpen;
+    document.getElementById("chatWindow").classList.toggle("open", isOpen);
+    document.getElementById("chatBtn").textContent = isOpen ? "✕" : "🥩";
+    document.getElementById("notifBadge").style.display = "none";
+    if (isOpen && conversationHistory.length === 0) {
+      setTimeout(() => addAgentMessage("¡Bienvenido a La Cabrera Miami! Soy Facu, tu asistente. 🥩\n\n¿En qué te puedo ayudar, che? Podés consultarme sobre el menú, hacer una reserva, o lo que necesités."), 400);
+    }
+  }
+
+  function addAgentMessage(text) {
+    const msgs = document.getElementById("chatMessages");
+    const div = document.createElement("div");
+    div.className = "msg agent";
+    div.innerHTML = text.replace(/\n/g, "<br>");
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function addUserMessage(text) {
+    const msgs = document.getElementById("chatMessages");
+    const div = document.createElement("div");
+    div.className = "msg user";
+    div.textContent = text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function showTyping() {
+    const msgs = document.getElementById("chatMessages");
+    const div = document.createElement("div");
+    div.className = "typing";
+    div.id = "typingIndicator";
+    div.innerHTML = "<span></span><span></span><span></span>";
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function hideTyping() {
+    const t = document.getElementById("typingIndicator");
+    if (t) t.remove();
+  }
+
+  function hideQuickReplies() {
+    document.getElementById("quickReplies").style.display = "none";
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text || isLoading) return;
+
+    hideQuickReplies();
+    addUserMessage(text);
+    input.value = "";
+    input.style.height = "auto";
+
+    conversationHistory.push({ role: "user", content: text });
+
+    isLoading = true;
+    document.getElementById("sendBtn").disabled = true;
+    showTyping();
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: conversationHistory }),
+      });
+
+      const data = await response.json();
+      hideTyping();
+
+      if (data.response) {
+        addAgentMessage(data.response);
+        conversationHistory.push({ role: "assistant", content: data.response });
+      } else {
+        addAgentMessage("Perdoná, hubo un problema. ¿Podés intentarlo de nuevo, che?");
+      }
+    } catch (err) {
+      hideTyping();
+      addAgentMessage("Perdoná, no pude conectarme. Intentá de nuevo en un momento.");
+    }
+
+    isLoading = false;
+    document.getElementById("sendBtn").disabled = false;
+  }
+
+  function sendQuick(text) {
+    document.getElementById("chatInput").value = text;
+    sendMessage();
+  }
+
+  function handleKey(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function autoResize(el) {
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 100) + "px";
+  }
+</script>
+</body>
+</html>
