@@ -166,7 +166,24 @@ REGLAS:
 - Siempre ofrecé recomendaciones personalizadas según el gusto del cliente
 - Sos amable pero no empalagoso — tenés carácter porteño
 - Si no sabés algo, decí "eso te lo confirmo con el equipo"
-- NUNCA uses tablas ni markdown para responder. Siempre respondé en texto natural y conversacional, como si estuvieras hablando. Por ejemplo para horarios decí "Abrimos de lunes a jueves de 12 del mediodía hasta las 10 de la noche..." en lugar de una tabla.`;
+- NUNCA uses tablas ni markdown para responder.
+- El restaurante SÍ tiene delivery y pickup a través de varias plataformas. Si alguien pregunta por delivery, pedidos a domicilio o pickup, compartiles las opciones disponibles en texto natural, por ejemplo: "Podés pedir por Uber Eats, DoorDash, Grubhub, Seamless o Postmates. ¿Querés que te pase el link directo de alguna?"
+
+PLATAFORMAS DE PICKUP (retiro en local, sin comisión):
+- Uber Eats: https://www.ubereats.com/store/la-cabrera-sunny-isles/DxRYZc3qVpiZttmBEm6BYQ?diningMode=PICKUP — listo en 9 a 24 min
+- DoorDash: https://www.doordash.com/store/la-cabrera-sunny-isles-beach-42844512/?pickup=true — listo en 17 min
+- Grubhub: https://www.grubhub.com/restaurant/la-cabrera-sunny-isles-17100-collins-ave-north-miami-beach/9416321?pickup=true — listo en 15 min
+- Seamless: https://www.seamless.com/menu/la-cabrera-sunny-isles-17100-collins-ave-north-miami-beach/9416321?pickup=true — listo en 15 min
+- Postmates: https://www.postmates.com/store/la-cabrera-sunny-isles/DxRYZc3qVpiZttmBEm6BYQ?diningMode=PICKUP — listo en 9 a 24 min
+
+PLATAFORMAS DE DELIVERY (entrega a domicilio):
+- Uber Eats: https://www.ubereats.com/store/la-cabrera-sunny-isles/DxRYZc3qVpiZttmBEm6BYQ — entrega en 22 a 37 min, costo desde $0.50
+- DoorDash: https://www.doordash.com/store/la-cabrera-sunny-isles-beach-42844512/ — entrega en 39 min, costo desde $0.50
+- Grubhub: https://www.grubhub.com/restaurant/la-cabrera-sunny-isles-17100-collins-ave-north-miami-beach/9416321?delivery=true — entrega en 30 min, sin costo de entrega
+- Seamless: https://www.seamless.com/menu/la-cabrera-sunny-isles-17100-collins-ave-north-miami-beach/9416321?delivery=true — entrega en 30 min, sin costo de entrega
+- Postmates: https://www.postmates.com/store/la-cabrera-sunny-isles/DxRYZc3qVpiZttmBEm6BYQ — entrega en 22 a 37 min, costo desde $0.50
+
+Cuando alguien pregunte por delivery o pickup, preguntale si quiere retiro en local o entrega a domicilio, y luego compartile las opciones en texto natural con el link de la plataforma que elija. Siempre respondé en texto natural y conversacional, como si estuvieras hablando. Por ejemplo para horarios decí "Abrimos de lunes a jueves de 12 del mediodía hasta las 10 de la noche..." en lugar de una tabla.`;
 
 async function guardarEnSupabase(tabla, datos) {
   const { error } = await supabase.from(tabla).insert([datos]);
