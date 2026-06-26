@@ -217,10 +217,11 @@
       border: 1px solid #2A2420;
       color: #A52020;
       font-size: 11px;
-      padding: 5px 12px;
+      padding: 5px 10px;
       border-radius: 20px;
       cursor: pointer;
       white-space: nowrap;
+      flex-shrink: 1;
     }
     .quick-btn:hover { background: #2A2420; }
 
@@ -296,7 +297,7 @@
 
   <div class="chat-footer-wrap">
     <div class="quick-replies" id="quickReplies">
-      <button class="quick-btn" onclick="sendQuick('Ver el menú')">🥩 Ver menú</button>
+      <button class="quick-btn" onclick="sendQuick('Ver el menú')">🥩 Menú</button>
       <button class="quick-btn" onclick="sendQuick('Hacer una reserva')">📅 Reservar</button>
       <button class="quick-btn" onclick="sendQuick('¿Cuáles son los horarios?')">🕐 Horarios</button>
       <button class="quick-btn" onclick="sendQuick('¿Cómo llego?')">📍 Ubicación</button>
