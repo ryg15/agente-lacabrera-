@@ -660,7 +660,7 @@
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">Próximas reservas</div>
-          <div class="panel-action">Ver todas</div>
+          <div style="display:flex;gap:10px;align-items:center;"><div class="panel-action" onclick="exportarCSV('reservas')">⬇ Exportar</div></div>
         </div>
         <div id="reservas-list">
           <div style="padding:16px 20px;color:var(--gris)">Cargando...</div>
@@ -673,7 +673,7 @@
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">Últimos leads</div>
-          <div class="panel-action">Ver todos</div>
+          <div style="display:flex;gap:10px;align-items:center;"><div class="panel-action" onclick="exportarCSV('leads')">⬇ Exportar</div></div>
         </div>
         <table class="table">
           <thead>
@@ -807,6 +807,36 @@ async function cargarDatos() {
 
 // Refrescar cada 60 segundos
 setInterval(cargarDatos, 60000);
+
+// Exportar CSV
+let datosGlobales = {};
+
+function exportarCSV(tipo) {
+  const datos = datosGlobales[tipo];
+  if (!datos || datos.length === 0) {
+    alert('No hay datos para exportar.');
+    return;
+  }
+
+  const cols = Object.keys(datos[0]).filter(k => k !== 'id');
+  const filas = [cols.join(',')];
+
+  datos.forEach(row => {
+    const vals = cols.map(col => {
+      const val = row[col] || '';
+      return '"' + String(val).replace(/"/g, '""') + '"';
+    });
+    filas.push(vals.join(','));
+  });
+
+  const blob = new Blob([filas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'lacabrera_' + tipo + '_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
 </script>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleNav()"></div>
 <script>
