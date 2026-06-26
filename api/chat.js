@@ -1,849 +1,305 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>La Cabrera — Panel de Gestión</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --negro:    #0A0806;
-    --carbon:   #141210;
-    --brasa:    #1E1A16;
-    --humo:     #2A2420;
-    --oro:      #C8953A;
-    --oro-suave:#E8B866;
-    --rojo:     #8B1A1A;
-    --rojo-vivo:#C0392B;
-    --crema:    #F2E8D9;
-    --gris:     #6B6560;
-    --gris-claro:#9E9590;
-    --verde:    #2D6A4F;
-    --verde-vivo:#40916C;
-  }
-
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--negro);
-    color: var(--crema);
-    min-height: 100vh;
-    display: flex;
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    width: 240px;
-    min-height: 100vh;
-    background: var(--carbon);
-    border-right: 1px solid #2A2420;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-  }
-
-  .sidebar-logo {
-    padding: 28px 24px 20px;
-    border-bottom: 1px solid var(--humo);
-  }
-
-  .sidebar-logo .brand {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--oro);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .sidebar-logo .sub {
-    font-size: 10px;
-    color: var(--gris);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-top: 3px;
-  }
-
-  .sidebar-nav {
-    padding: 16px 0;
-    flex: 1;
-  }
-
-  .nav-section {
-    padding: 8px 16px 4px;
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gris);
-    margin-top: 8px;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 20px;
-    font-size: 13px;
-    color: var(--gris-claro);
-    cursor: pointer;
-    transition: all 0.15s;
-    border-left: 3px solid transparent;
-  }
-
-  .nav-item:hover { color: var(--crema); background: var(--humo); }
-  .nav-item.active {
-    color: var(--oro);
-    background: rgba(200,149,58,0.08);
-    border-left-color: var(--oro);
-  }
-
-  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
-
-  .badge {
-    margin-left: auto;
-    background: var(--rojo-vivo);
-    color: white;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 10px;
-  }
-
-  .sidebar-footer {
-    padding: 16px 20px;
-    border-top: 1px solid var(--humo);
-    font-size: 11px;
-    color: var(--gris);
-  }
-
-  .live-dot {
-    display: inline-block;
-    width: 7px; height: 7px;
-    background: var(--verde-vivo);
-    border-radius: 50%;
-    margin-right: 6px;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  /* MAIN */
-  .main {
-    margin-left: 240px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .topbar {
-    background: var(--carbon);
-    border-bottom: 1px solid var(--humo);
-    padding: 16px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  .topbar-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--crema);
-  }
-
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .date-badge {
-    font-size: 11px;
-    color: var(--gris-claro);
-    background: var(--brasa);
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--humo);
-  }
-
-  .manager-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--crema);
-  }
-
-  .avatar {
-    width: 30px; height: 30px;
-    background: var(--oro);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--negro);
-  }
-
-  .content {
-    padding: 28px 32px;
-    flex: 1;
-  }
-
-  /* KPI ROW */
-  .kpi-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-
-  .kpi-card {
-    background: var(--brasa);
-    border: 1px solid var(--humo);
-    border-radius: 10px;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--oro), transparent);
-  }
-
-  .kpi-card.red::before { background: linear-gradient(90deg, var(--rojo-vivo), transparent); }
-  .kpi-card.green::before { background: linear-gradient(90deg, var(--verde-vivo), transparent); }
-  .kpi-card.blue::before { background: linear-gradient(90deg, #3B82F6, transparent); }
-
-  .kpi-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--gris);
-    margin-bottom: 10px;
-  }
-
-  .kpi-value {
-    font-family: 'Playfair Display', serif;
-    font-size: 34px;
-    font-weight: 700;
-    color: var(--crema);
-    line-height: 1;
-  }
-
-  .kpi-sub {
-    font-size: 11px;
-    color: var(--gris-claro);
-    margin-top: 6px;
-  }
-
-  .kpi-delta {
-    font-size: 11px;
-    color: var(--verde-vivo);
-    margin-top: 4px;
-  }
-
-  .kpi-delta.down { color: var(--rojo-vivo); }
-
-  /* GRID 2 COL */
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-
-  .grid-3-1 {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-
-  .panel {
-    background: var(--brasa);
-    border: 1px solid var(--humo);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .panel-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--humo);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .panel-title {
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--oro-suave);
-    font-weight: 500;
-  }
-
-  .panel-action {
-    font-size: 11px;
-    color: var(--gris);
-    cursor: pointer;
-  }
-  .panel-action:hover { color: var(--oro); }
-
-  /* LEADS TABLE */
-  .table { width: 100%; border-collapse: collapse; }
-  .table th {
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--gris);
-    padding: 10px 16px;
-    text-align: left;
-    border-bottom: 1px solid var(--humo);
-    font-weight: 500;
-  }
-
-  .table td {
-    padding: 12px 16px;
-    font-size: 12px;
-    color: var(--crema);
-    border-bottom: 1px solid rgba(42,36,32,0.6);
-    vertical-align: middle;
-  }
-
-  .table tr:last-child td { border-bottom: none; }
-  .table tr:hover td { background: rgba(200,149,58,0.04); }
-
-  .status-pill {
-    display: inline-block;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-  }
-
-  .status-pill.reserva { background: rgba(200,149,58,0.15); color: var(--oro-suave); }
-  .status-pill.consulta { background: rgba(59,130,246,0.15); color: #93C5FD; }
-  .status-pill.review { background: rgba(64,145,108,0.15); color: #6EE7B7; }
-  .status-pill.cancelado { background: rgba(192,57,43,0.12); color: #FCA5A5; }
-
-  .channel-icon {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    color: var(--gris-claro);
-  }
-
-  /* CHART BARS */
-  .chart-wrap { padding: 20px; }
-  .chart-bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    height: 100px;
-    margin-bottom: 8px;
-  }
-
-  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .bar {
-    width: 100%;
-    border-radius: 3px 3px 0 0;
-    background: linear-gradient(to top, var(--oro), var(--oro-suave));
-    opacity: 0.8;
-    transition: opacity 0.2s;
-  }
-  .bar:hover { opacity: 1; }
-  .bar.dim { background: var(--humo); opacity: 1; }
-  .bar-label { font-size: 9px; color: var(--gris); }
-
-  /* RESERVAS */
-  .reserva-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    border-bottom: 1px solid rgba(42,36,32,0.6);
-    gap: 14px;
-  }
-  .reserva-item:last-child { border-bottom: none; }
-
-  .res-time {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--oro);
-    min-width: 52px;
-  }
-
-  .res-info { flex: 1; }
-  .res-name { font-size: 13px; color: var(--crema); font-weight: 500; }
-  .res-detail { font-size: 11px; color: var(--gris-claro); margin-top: 2px; }
-
-  .res-size {
-    font-size: 11px;
-    color: var(--gris);
-    text-align: right;
-  }
-
-  /* REDES */
-  .social-item {
-    display: flex;
-    align-items: center;
-    padding: 14px 20px;
-    border-bottom: 1px solid rgba(42,36,32,0.6);
-    gap: 12px;
-  }
-  .social-item:last-child { border-bottom: none; }
-
-  .social-icon {
-    width: 34px; height: 34px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-
-  .social-icon.ig { background: linear-gradient(135deg, #833AB4, #E1306C, #F77737); }
-  .social-icon.fb { background: #1877F2; }
-  .social-icon.wa { background: #25D366; }
-
-  .social-info { flex: 1; }
-  .social-name { font-size: 12px; color: var(--crema); font-weight: 500; }
-  .social-msg { font-size: 11px; color: var(--gris-claro); margin-top: 2px; }
-  .social-meta { font-size: 10px; color: var(--gris); text-align: right; }
-
-  /* REVIEWS */
-  .review-item {
-    padding: 14px 20px;
-    border-bottom: 1px solid rgba(42,36,32,0.6);
-  }
-  .review-item:last-child { border-bottom: none; }
-
-  .review-stars { color: var(--oro); font-size: 12px; margin-bottom: 4px; }
-  .review-text { font-size: 12px; color: var(--crema); line-height: 1.5; font-style: italic; }
-  .review-author { font-size: 10px; color: var(--gris); margin-top: 5px; }
-
-  /* ALERT BANNER */
-  .alert-banner {
-    background: rgba(200,149,58,0.08);
-    border: 1px solid rgba(200,149,58,0.25);
-    border-radius: 8px;
-    padding: 12px 18px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 12px;
-    color: var(--oro-suave);
-  }
-
-  .section-label {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gris);
-    margin-bottom: 14px;
-    margin-top: 4px;
-  }
-
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: var(--carbon); }
-  ::-webkit-scrollbar-thumb { background: var(--humo); border-radius: 3px; }
-
-  /* ===== RESPONSIVO MOBILE ===== */
-  @media (max-width: 768px) {
-    body { flex-direction: column; }
-
-    /* Ocultar sidebar en mobile */
-    .sidebar { display: none; }
-
-    /* Main ocupa todo */
-    .main { margin-left: 0; }
-
-    /* Topbar mobile */
-    .topbar { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
-    .topbar-title { font-size: 16px; }
-    .date-badge { font-size: 10px; padding: 4px 8px; }
-
-    /* Content padding */
-    .content { padding: 16px; }
-
-    /* KPIs en 2 columnas */
-    .kpi-row { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .kpi-value { font-size: 24px; }
-
-    /* Grids en 1 columna */
-    .grid-2 { grid-template-columns: 1fr; gap: 12px; }
-    .grid-3-1 { grid-template-columns: 1fr; gap: 12px; }
-
-    /* Tabla de leads scroll horizontal */
-    .panel { overflow-x: auto; }
-    .table th, .table td { padding: 8px 10px; font-size: 11px; }
-
-    /* Reservas */
-    .res-time { font-size: 14px; min-width: 40px; }
-    .res-name { font-size: 12px; }
-    .res-detail { font-size: 10px; }
-
-    /* Social items */
-    .social-item { padding: 10px 14px; }
-    .social-name { font-size: 11px; }
-    .social-msg { font-size: 10px; }
-
-    /* Reviews */
-    .review-item { padding: 10px 14px; }
-    .review-text { font-size: 11px; }
-
-    /* Alert banner */
-    .alert-banner { font-size: 11px; padding: 10px 14px; }
-
-    /* Panel header */
-    .panel-header { padding: 12px 14px; }
-    .panel-title { font-size: 11px; }
-
-    /* Reservas list */
-    .reserva-item { padding: 10px 14px; gap: 10px; }
-
-    /* Nav mobile — botón hamburguesa */
-    .mobile-nav-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px; height: 36px;
-      background: var(--brasa);
-      border: 1px solid var(--humo);
-      border-radius: 6px;
-      cursor: pointer;
-      color: var(--crema);
-      font-size: 18px;
+const Anthropic = require("@anthropic-ai/sdk");
+const { createClient } = require("@supabase/supabase-js");
+
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
+
+const SYSTEM_PROMPT = `Sos Facu, el asistente virtual de La Cabrera Miami — la parrilla argentina más icónica de Sunny Isles Beach, creada por el chef Gastón Riveira. Hablás con un tono porteño auténtico y natural: usás "vos" en lugar de "tú", pero sin exagerar ni repetir muletillas como "dale" o "bárbaro" al final de cada frase. Sos cálido, profesional y conocedor de la carne y el vino. Tu objetivo es que el cliente se sienta bienvenido, no que notes que estás forzando un acento.
+
+UBICACIÓN:
+- Sunny Isles Beach: 17100 Collins Ave, FL 33160 — Tel: (305) 705-2185
+
+Solo representás el local de Sunny Isles Beach. Si alguien pregunta por Coconut Grove, decile que ese local tiene su propio equipo y que por consultas de Sunny Isles estás a su disposición.
+
+HORARIOS (Sunny Isles):
+- Lunes a Jueves: 12:00pm - 10:00pm
+- Viernes y Sábados: 12:00pm - 11:00pm  
+- Domingos: 12:00pm - 10:00pm
+
+MENÚ COMPLETO:
+
+ENTRADAS (From our grill):
+- Chorizo: $17
+- Morcilla: $17
+- Mollejas a la parrilla: $42
+- Provoleta argentina: $19
+- Provoleta especial (con tomates secos y jamón crudo): $22
+
+ENTRADAS (From our Josper - horno a leña):
+- Gambas pil-pil (con ajo, hongos y aceite de oliva): $20
+- Gambas a la parrilla (con ajo y perejil): $18
+
+ENTRADAS (De la cocina):
+- Empanadas de choclo x4: $23 | x2: $12
+- Empanadas de carne x4: $23 | x2: $12
+- Empanadas veggie x4: $23 | x2: $12
+- Burrata sobre tartar de tomate y palta: $23
+
+PASTAS:
+- Ravioles de hongos y trufa con tomates mantecados: $25
+- Ravioles de ricota y espinaca con salsa de tomate y crema: $24
+- Ñoquis soufflé con salsa Triplo Burro: $24
+- Ñoquis soufflé con crema de tres quesos: $23
+- Penne Rigate con pesto cremoso: $19
+- Spaghetti con salsa de mariscos: $29
+
+GUARNICIONES:
+- Brócoli al vapor: $8
+- Macarrones con queso: $8
+- Papas fritas: $8
+- Papas fritas con cebolla caramelizada: $10
+- Papas fritas con huevo revuelto: $10
+- Papas fritas con queso azul: $10
+- Puré de calabaza: $8
+- Puré de papas: $8
+- Puré mixto (papa y calabaza): $8
+- Verduras a la parrilla: $10
+
+ENSALADAS:
+- César de pollo con panceta: $25
+- Rúcula y parmesano: $18
+- Palta, palmito y tomate: $19
+- Peras y queso de cabra con rúcula, frutos secos y miel: $18
+- Tataki de atún con mix de verdes, tomate, frutos secos y brie: $25
+- Mixta (mix de verdes, tomate, palta y cebolla): $17
+
+CORTES PRINCIPALES (De la parrilla - Certified Angus Beef):
+- Short Ribs 28oz: $59
+- Short Ribs 18oz: $39
+- New York Strip 21oz: $56
+- New York Strip 14oz: $42
+- Grand New York Strip 28oz: $74
+- New York Strip con queso azul 14oz: $42
+- Corte Dry Aged especial: Consultar
+- Brochette de lomo: $63
+- Brochette de pollo: $24
+- Cowboy Bone-In Rib Eye 28oz: $98
+- Wagyu corte especial: Consultar
+- Steak del mes: Consultar
+- Outside Skirt 21oz: $62
+- Outside Skirt 14oz: $43
+- Filet Mignon 21oz: $112
+- Filet Mignon 14oz: $75
+- Filet Mignon con jamón, queso y huevo 14oz: $82
+- Ribeye CAB 21oz: $73
+- Ribeye CAB 14oz: $50
+- Pechuga de pollo con queso ahumado: $24
+- Pechuga de pollo con manteca de hierbas: $24
+- Pollo a la parrilla: $22
+- Costillas de cerdo BBQ 21oz: $39
+- T-Bone CAB 28oz: $98
+- Tomahawk CAB 48oz: $168
+- Flap Steak 14oz: $36
+- Flap Steak 21oz: $52
+
+JOSPER (horno a leña):
+- Salmón a la parrilla: $38
+- Atún a la parrilla con verduras: $36
+- Pescado del día: Consultar
+- Pulpo a la parrilla con verduras (1/2): $38
+
+DE LA COCINA:
+- Milanesa de Outside Skirt: $40
+- Milanesa napolitana de Outside Skirt: $46
+- Milanesa napolitana de New York Strip: $40
+- Milanesa napolitana de pollo: $24
+
+POSTRES:
+- Flan casero especial: $13
+- Crepas de dulce de leche: $13
+- Torta de galletitas y dulce de leche: $13
+- Crème brûlée: $13
+- Port Salut con membrillo y batata: $14
+- Cheesecake de dulce de leche: $15
+- Volcán de chocolate con helado: $15
+- Degustación de postres (5 postres): $36
+- Degustación 1/2: $23
+- Degustación de helados: $29
+- Degustación de helados 1/2: $19
+- Bocha de helado: $8
+
+CAFÉ Y TÉ:
+- Espresso: $4
+- Espresso Macchiato: $4
+- Café americano: $4.50
+- Café americano descafeinado: $5
+- Latte: $5
+- Té: $4
+
+PUNTOS DE COCCIÓN (para orientar al cliente):
+- Vuelta y vuelta / Blue: casi crudo, sellado por fuera
+- Jugoso / Rare: rojo por dentro, muy tierno
+- A punto / Medium rare: rosado, el punto más recomendado por Facu
+- A punto más / Medium: rosado claro, jugoso
+- Bien cocido / Well done: cocción completa
+
+RECOMENDACIONES DE FACU:
+- Para una primera visita: Ribeye 14oz a punto, con papas fritas con queso azul
+- Corte estrella de la casa: Tomahawk 48oz para compartir (2-3 personas)
+- Para ocasiones especiales: Filet Mignon con la tabla de postres
+- Maridaje: siempre recomendar preguntar por la carta de vinos
+
+RESERVAS:
+Cuando el cliente quiera reservar, pedile UNO POR UNO: nombre completo, teléfono, fecha, hora, cantidad de personas, y si es alguna ocasión especial.
+
+IMPORTANTE: Una vez que tenés TODOS los datos (nombre, teléfono, fecha, hora, personas), SIEMPRE debés incluir el siguiente tag al FINAL de tu respuesta de confirmación, sin excepción:
+GUARDAR_RESERVA:{"nombre":"nombre del cliente","telefono":"telefono","fecha":"fecha","hora":"hora","personas":2,"ocasion":"ocasion o vacio","notas":"notas adicionales o vacio"}
+
+El tag debe ir pegado, sin espacios ni saltos de línea entre GUARDAR_RESERVA: y el JSON. Nunca omitas este tag cuando tenés todos los datos.
+
+CAPTURA DE LEADS:
+Cuando el cliente da su nombre y teléfono o email con intención real (reserva, evento, consulta específica), guardalo con:
+GUARDAR_LEAD:{"nombre":"...","telefono":"...","email":"...","canal":"web","tipo":"...","mensaje":"..."}
+
+REVIEWS:
+Al final de una conversación satisfactoria, invitá al cliente a dejar su opinión:
+"Che, si querés dejar tu experiencia en Google nos ayudás un montón 🙏 → [Google Reviews La Cabrera Miami]"
+Si el cliente da una reseña dentro del chat, guardala con:
+GUARDAR_REVIEW:{"nombre":"...","estrellas":5,"comentario":"..."}
+
+REGLAS:
+- Nunca inventés precios ni platos que no estén en el menú
+- Si preguntan por vinos o cócteles, deciles que con gusto les compartís la carta de bebidas o que consulten con el sommelier
+- Siempre ofrecé recomendaciones personalizadas según el gusto del cliente
+- Sos amable pero no empalagoso — tenés carácter porteño
+- Si no sabés algo, decí "eso te lo confirmo con el equipo"
+- NUNCA uses tablas ni markdown para responder.
+- El restaurante SÍ tiene delivery y pickup a través de varias plataformas. Si alguien pregunta por delivery, pedidos a domicilio o pickup, compartiles las opciones disponibles en texto natural, por ejemplo: "Podés pedir por Uber Eats, DoorDash, Grubhub, Seamless o Postmates. ¿Querés que te pase el link directo de alguna?"
+
+PLATAFORMAS DE PICKUP (retiro en local):
+- Uber Eats: https://www.ubereats.com/store/la-cabrera-sunny-isles/DxRYZc3qVpiZttmBEm6BYQ?diningMode=PICKUP — listo en 9 a 24 min
+- DoorDash: https://www.doordash.com/store/la-cabrera-sunny-isles-beach-42844512/?pickup=true — listo en 17 min
+- Grubhub: https://www.grubhub.com/restaurant/la-cabrera-sunny-isles-17100-collins-ave-north-miami-beach/9416321?pickup=true — listo en 15 min
+- Seamless: https://www.seamless.com/menu/la-cabrera-sunny-isles-17100-collins-ave-north-miami-beach/9416321?pickup=true — listo en 15 min
+- Postmates: https://www.postmates.com/store/la-cabrera-sunny-isles/DxRYZc3qVpiZttmBEm6BYQ?diningMode=PICKUP — listo en 9 a 24 min
+
+PLATAFORMAS DE DELIVERY (entrega a domicilio):
+- Uber Eats: https://www.ubereats.com/store/la-cabrera-sunny-isles/DxRYZc3qVpiZttmBEm6BYQ — entrega en 22 a 37 min
+- DoorDash: https://www.doordash.com/store/la-cabrera-sunny-isles-beach-42844512/ — entrega en 39 min
+- Grubhub: https://www.grubhub.com/restaurant/la-cabrera-sunny-isles-17100-collins-ave-north-miami-beach/9416321?delivery=true — entrega en 30 min
+- Seamless: https://www.seamless.com/menu/la-cabrera-sunny-isles-17100-collins-ave-north-miami-beach/9416321?delivery=true — entrega en 30 min
+- Postmates: https://www.postmates.com/store/la-cabrera-sunny-isles/DxRYZc3qVpiZttmBEm6BYQ — entrega en 22 a 37 min
+
+Solo menciones costos de envío si el cliente pregunta específicamente.
+
+Cuando alguien pregunte por delivery o pickup, preguntale si quiere retiro en local o entrega a domicilio, y luego compartile las opciones en texto natural con el link de la plataforma que elija. Siempre respondé en texto natural y conversacional, como si estuvieras hablando. Por ejemplo para horarios decí "Abrimos de lunes a jueves de 12 del mediodía hasta las 10 de la noche..." en lugar de una tabla.`;
+
+async function guardarEnSupabase(tabla, datos) {
+  const { error } = await supabase.from(tabla).insert([datos]);
+  if (error) console.error(`Error guardando en ${tabla}:`, error);
+}
+
+function extraerJSON(texto, tag) {
+  const idx = texto.indexOf(tag + ":");
+  if (idx === -1) return null;
+  const start = texto.indexOf("{", idx);
+  if (start === -1) return null;
+  let depth = 0;
+  for (let i = start; i < texto.length; i++) {
+    if (texto[i] === "{") depth++;
+    else if (texto[i] === "}") {
+      depth--;
+      if (depth === 0) return texto.substring(start, i + 1);
     }
+  }
+  return null;
+}
 
-    /* Sidebar mobile overlay */
-    .sidebar.mobile-open {
-      display: flex;
-      z-index: 100;
-      width: 260px;
-    }
+function extraerTags(texto) {
+  const reservaJSON = extraerJSON(texto, "GUARDAR_RESERVA");
+  const leadJSON = extraerJSON(texto, "GUARDAR_LEAD");
+  const reviewJSON = extraerJSON(texto, "GUARDAR_REVIEW");
+  return { reservaJSON, leadJSON, reviewJSON };
+}
 
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 99;
-    }
+function limpiarRespuesta(texto) {
+  return texto
+    .replace(/GUARDAR_RESERVA:\s*\{[\s\S]*?\}(?=\s|$)/g, "")
+    .replace(/GUARDAR_LEAD:\s*\{[\s\S]*?\}(?=\s|$)/g, "")
+    .replace(/GUARDAR_REVIEW:\s*\{[\s\S]*?\}(?=\s|$)/g, "")
+    .trim();
+}
 
-    .sidebar-overlay.active { display: block; }
+module.exports = async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido" });
+
+  const { messages, conversationId } = req.body;
+  if (!messages || !Array.isArray(messages)) {
+    return res.status(400).json({ error: "Mensajes inválidos" });
   }
 
-  @media (min-width: 769px) {
-    .mobile-nav-btn { display: none; }
-    .sidebar-overlay { display: none !important; }
-  }
-</style>
-</head>
-<body onload="cargarDatos()">
-
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="brand">La Cabrera</div>
-    <div class="sub">Panel de Gestión</div>
-    <div style="font-size:10px; color:var(--gris); letter-spacing:0.08em; margin-top:4px;">Sunny Isles Beach</div>
-    <div style="font-size:10px; color:var(--gris); margin-top:2px;">17100 Collins Ave, FL 33160</div>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-section">Principal</div>
-    <div class="nav-item active"><span class="nav-icon">◈</span> Dashboard</div>
-    <div class="nav-item"><span class="nav-icon">◎</span> Conversaciones <span class="badge">3</span></div>
-
-    <div class="nav-section">Negocio</div>
-    <div class="nav-item"><span class="nav-icon">✦</span> Leads</div>
-    <div class="nav-item"><span class="nav-icon">⊞</span> Reservas</div>
-    <div class="nav-item"><span class="nav-icon">★</span> Reviews</div>
-
-    <div class="nav-section">Redes</div>
-    <div class="nav-item"><span class="nav-icon">◉</span> Instagram <span class="badge">2</span></div>
-    <div class="nav-item"><span class="nav-icon">◈</span> Facebook</div>
-    <div class="nav-item"><span class="nav-icon">◎</span> WhatsApp <span class="badge">5</span></div>
-
-    <div class="nav-section">Reportes</div>
-    <div class="nav-item"><span class="nav-icon">▦</span> Informes</div>
-    <div class="nav-item"><span class="nav-icon">◧</span> Exportar</div>
-  </nav>
-  <div class="sidebar-footer">
-    <span class="live-dot"></span>Agente activo ahora
-  </div>
-</aside>
-
-<!-- MAIN -->
-<main class="main">
-  <div class="topbar">
-    <div style="display:flex;align-items:center;gap:12px;"><button class="mobile-nav-btn" onclick="toggleNav()">☰</button><div class="topbar-title">Dashboard</div></div>
-    <div class="topbar-right">
-      <div class="date-badge">Jueves 25 junio 2026 · Servicio de noche</div>
-      <div class="manager-pill">
-        <div class="avatar">M</div>
-        Manager
-      </div>
-    </div>
-  </div>
-
-  <div class="content">
-
-    <!-- ALERT -->
-    <div class="alert-banner">
-      🔥 &nbsp;Nueva reserva entrante — <strong>Martínez, 6 personas · 21:00 hs</strong> — hace 3 minutos
-    </div>
-
-    <!-- KPIs -->
-    <div class="kpi-row">
-      <div class="kpi-card">
-        <div class="kpi-label">Conversaciones hoy</div>
-        <div class="kpi-value" id="kpi-conversaciones">—</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">Leads capturados</div>
-        <div class="kpi-value" id="kpi-leads">—</div>
-      </div>
-      <div class="kpi-card red">
-        <div class="kpi-label">Reservas esta noche</div>
-        <div class="kpi-value" id="kpi-reservas">—</div>
-      </div>
-      <div class="kpi-card blue">
-        <div class="kpi-label">Reviews recibidos</div>
-        <div class="kpi-value" id="kpi-reviews">—</div>
-        <div class="kpi-sub" id="kpi-estrellas"></div>
-      </div>
-    </div>
-
-    <!-- ACTIVIDAD + RESERVAS -->
-    <div class="grid-3-1">
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Actividad por hora</div>
-          <div class="panel-action">Hoy</div>
-        </div>
-        <div class="chart-wrap">
-          <div class="chart-bars">
-            <div class="bar-col"><div class="bar dim" style="height:15%"></div><div class="bar-label">12</div></div>
-            <div class="bar-col"><div class="bar dim" style="height:20%"></div><div class="bar-label">13</div></div>
-            <div class="bar-col"><div class="bar dim" style="height:10%"></div><div class="bar-label">14</div></div>
-            <div class="bar-col"><div class="bar dim" style="height:8%"></div><div class="bar-label">15</div></div>
-            <div class="bar-col"><div class="bar" style="height:35%"></div><div class="bar-label">16</div></div>
-            <div class="bar-col"><div class="bar" style="height:55%"></div><div class="bar-label">17</div></div>
-            <div class="bar-col"><div class="bar" style="height:70%"></div><div class="bar-label">18</div></div>
-            <div class="bar-col"><div class="bar" style="height:90%"></div><div class="bar-label">19</div></div>
-            <div class="bar-col"><div class="bar" style="height:100%"></div><div class="bar-label">20</div></div>
-            <div class="bar-col"><div class="bar" style="height:80%"></div><div class="bar-label">21</div></div>
-            <div class="bar-col"><div class="bar dim" style="height:40%"></div><div class="bar-label">22</div></div>
-            <div class="bar-col"><div class="bar dim" style="height:20%"></div><div class="bar-label">23</div></div>
-          </div>
-          <div style="font-size:10px; color:var(--gris); padding-top:4px;">Conversaciones activas con el agente</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Próximas reservas</div>
-          <div style="display:flex;gap:10px;align-items:center;"><div class="panel-action" onclick="exportarCSV('reservas')">⬇ Exportar</div></div>
-        </div>
-        <div id="reservas-list">
-          <div style="padding:16px 20px;color:var(--gris)">Cargando...</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LEADS + REDES -->
-    <div class="grid-2">
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Últimos leads</div>
-          <div style="display:flex;gap:10px;align-items:center;"><div class="panel-action" onclick="exportarCSV('leads')">⬇ Exportar</div></div>
-        </div>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Contacto</th>
-              <th>Canal</th>
-              <th>Tipo</th>
-              <th>Hora</th>
-            </tr>
-          </thead>
-          <tbody id="leads-body">
-            <tr><td colspan="4" style="color:var(--gris);text-align:center;padding:20px">Cargando...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div style="display:flex; flex-direction:column; gap:20px;">
-        <!-- REDES -->
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">Mensajes en redes</div>
-            <div class="panel-action">Ver todos</div>
-          </div>
-          <div class="social-item">
-            <div class="social-icon ig">📸</div>
-            <div class="social-info">
-              <div class="social-name">@marisolviajes</div>
-              <div class="social-msg">¿Tienen mesa para el sábado noche?</div>
-            </div>
-            <div class="social-meta">hace 5 min<br><span style="color:var(--rojo-vivo)">sin leer</span></div>
-          </div>
-          <div class="social-item">
-            <div class="social-icon wa">💬</div>
-            <div class="social-info">
-              <div class="social-name">+1 786 334 9021</div>
-              <div class="social-msg">¿Cuál es el punto ideal para el ojo de bife?</div>
-            </div>
-            <div class="social-meta">hace 12 min<br><span style="color:var(--verde-vivo)">respondido</span></div>
-          </div>
-          <div class="social-item">
-            <div class="social-icon fb">f</div>
-            <div class="social-info">
-              <div class="social-name">Pedro Suárez</div>
-              <div class="social-msg">Excelente lugar, volveremos pronto 🥩</div>
-            </div>
-            <div class="social-meta">hace 28 min<br><span style="color:var(--gris)">comentario</span></div>
-          </div>
-        </div>
-
-        <!-- REVIEWS -->
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">Reviews de hoy</div>
-            <div class="panel-action">Ver en Google</div>
-          </div>
-        <div id="reviews-list">
-          <div class="review-item" style="color:var(--gris)">Cargando...</div>
-        </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</main>
-
-<script>
-async function cargarDatos() {
   try {
-    const res = await fetch("/api/admin");
-    const data = await res.json();
-
-    // KPIs
-    document.getElementById("kpi-conversaciones").textContent = data.hoy.conversaciones;
-    document.getElementById("kpi-leads").textContent = data.hoy.leads;
-    document.getElementById("kpi-reservas").textContent = data.hoy.reservas;
-    document.getElementById("kpi-reviews").textContent = data.hoy.reviews;
-    if (data.hoy.promedioEstrellas) {
-      document.getElementById("kpi-estrellas").textContent = "★ " + data.hoy.promedioEstrellas;
-    }
-
-    // Leads
-    const leadsTable = document.getElementById("leads-body");
-    if (data.datos.leads.length === 0) {
-      leadsTable.innerHTML = '<tr><td colspan="4" style="color:var(--gris);text-align:center;padding:20px">Sin leads hoy</td></tr>';
-    } else {
-      leadsTable.innerHTML = data.datos.leads.map(l => `
-        <tr>
-          <td>
-            <div style="font-weight:500">${l.nombre || "—"}</div>
-            <div style="font-size:10px;color:var(--gris)">${l.telefono || l.email || ""}</div>
-          </td>
-          <td><span class="channel-icon">💬 ${l.canal || "web"}</span></td>
-          <td><span class="status-pill ${l.tipo === "reserva" ? "reserva" : l.tipo === "review" ? "review" : "consulta"}">${l.tipo || "consulta"}</span></td>
-          <td style="color:var(--gris)">${new Date(l.created_at).toLocaleTimeString("es-AR", {hour:"2-digit",minute:"2-digit"})}</td>
-        </tr>`).join("");
-    }
-
-    // Reservas
-    const reservasDiv = document.getElementById("reservas-list");
-    if (data.datos.reservas.length === 0) {
-      reservasDiv.innerHTML = '<div style="padding:16px 20px;color:var(--gris)">Sin reservas hoy</div>';
-    } else {
-      reservasDiv.innerHTML = data.datos.reservas.map(r => `
-        <div class="reserva-item">
-          <div class="res-time">${r.hora || "—"}</div>
-          <div class="res-info">
-            <div class="res-name">${r.nombre || "—"}</div>
-            <div class="res-detail">${r.ocasion || ""} ${r.notas ? "· " + r.notas : ""}</div>
-          </div>
-          <div class="res-size">${r.personas || "—"} <span style="color:var(--gris)">pax</span></div>
-        </div>`).join("");
-    }
-
-    // Reviews
-    const reviewsDiv = document.getElementById("reviews-list");
-    if (data.datos.reviews.length === 0) {
-      reviewsDiv.innerHTML = '<div class="review-item" style="color:var(--gris)">Sin reviews hoy</div>';
-    } else {
-      reviewsDiv.innerHTML = data.datos.reviews.map(r => `
-        <div class="review-item">
-          <div class="review-stars">${"★".repeat(r.estrellas || 5)}</div>
-          <div class="review-text">"${r.comentario || ""}"</div>
-          <div class="review-author">— ${r.nombre || "Anónimo"}</div>
-        </div>`).join("");
-    }
-
-  } catch (err) {
-    console.error("Error cargando datos:", err);
-  }
-}
-
-// Refrescar cada 60 segundos
-setInterval(cargarDatos, 60000);
-
-// Exportar CSV
-let datosGlobales = {};
-
-function exportarCSV(tipo) {
-  const datos = datosGlobales[tipo];
-  if (!datos || datos.length === 0) {
-    alert('No hay datos para exportar.');
-    return;
-  }
-
-  const cols = Object.keys(datos[0]).filter(k => k !== 'id');
-  const filas = [cols.join(',')];
-
-  datos.forEach(row => {
-    const vals = cols.map(col => {
-      const val = row[col] || '';
-      return '"' + String(val).replace(/"/g, '""') + '"';
+    const ahora = new Date().toLocaleString("es-AR", {
+      timeZone: "America/New_York",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
     });
-    filas.push(vals.join(','));
-  });
 
-  const blob = new Blob([filas.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'lacabrera_' + tipo + '_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-</script>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleNav()"></div>
-<script>
-function toggleNav() {
-  document.querySelector('.sidebar').classList.toggle('mobile-open');
-  document.getElementById('sidebarOverlay').classList.toggle('active');
-}
-</script>
-</body>
-</html>
+    const systemConFecha = SYSTEM_PROMPT + `\n\nFECHA Y HORA ACTUAL: ${ahora} (hora de Miami).`;
+
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1024,
+      system: systemConFecha,
+      messages,
+    });
+
+    const rawText = response.content[0].text;
+    const { reservaJSON, leadJSON, reviewJSON } = extraerTags(rawText);
+
+    // Guardar reserva
+    if (reservaJSON) {
+      try {
+        const datos = JSON.parse(reservaJSON);
+        await guardarEnSupabase("reservas", datos);
+        console.log("Reserva guardada:", datos);
+      } catch (e) { console.error("Error parseando reserva:", e, reservaJSON); }
+    }
+
+    // Guardar lead
+    if (leadJSON) {
+      try {
+        const datos = JSON.parse(leadJSON);
+        await guardarEnSupabase("leads", datos);
+        console.log("Lead guardado:", datos);
+      } catch (e) { console.error("Error parseando lead:", e, leadJSON); }
+    }
+
+    // Guardar review
+    if (reviewJSON) {
+      try {
+        const datos = JSON.parse(reviewJSON);
+        await guardarEnSupabase("reviews", datos);
+        console.log("Review guardado:", datos);
+      } catch (e) { console.error("Error parseando review:", e, reviewJSON); }
+    }
+
+    // Guardar conversación
+    if (messages.length >= 2) {
+      const resumen = `Conversación ${new Date().toLocaleString("es-AR")} — ${messages.length} mensajes`;
+      await guardarEnSupabase("conversaciones", {
+        resumen,
+        mensajes: JSON.stringify(messages),
+      });
+    }
+
+    const textoLimpio = limpiarRespuesta(rawText);
+    return res.status(200).json({ response: textoLimpio });
+
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
