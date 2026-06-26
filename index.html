@@ -406,16 +406,16 @@
     <button class="quick-btn" onclick="sendQuick('¿Cómo llego?')">📍 Ubicación</button>
   </div>
 
-  <div class="chat-input-wrap">
+  <div style="padding:12px 16px;border-top:1px solid #2A2420;background:#141210;display:flex;flex-direction:row;gap:8px;align-items:center;width:100%;box-sizing:border-box;">
     <textarea
-      class="chat-input"
       id="chatInput"
       placeholder="Escribí tu consulta..."
       rows="1"
       onkeydown="handleKey(event)"
       oninput="autoResize(this)"
+      style="flex:1;min-width:0;background:#1E1A16;border:1px solid #2A2420;border-radius:10px;padding:10px 14px;color:#F2E8D9;font-size:14px;font-family:Inter,sans-serif;resize:none;min-height:40px;max-height:100px;outline:none;box-sizing:border-box;"
     ></textarea>
-    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+    <button id="sendBtn" onclick="sendMessage()" style="width:40px;height:40px;min-width:40px;background:#A52020;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0;">➤</button>
   </div>
 
   <div class="chat-footer">Powered by RBS · Roxana Brand Studios</div>
