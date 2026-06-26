@@ -198,10 +198,22 @@ module.exports = async (req, res) => {
   }
 
   try {
+    const ahora = new Date().toLocaleString("es-AR", {
+      timeZone: "America/New_York",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    const systemConFecha = SYSTEM_PROMPT + `\n\nFECHA Y HORA ACTUAL: ${ahora} (hora de Miami).`;
+
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 1024,
-      system: SYSTEM_PROMPT,
+      system: systemConFecha,
       messages,
     });
 
