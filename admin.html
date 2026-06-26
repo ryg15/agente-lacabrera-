@@ -568,7 +568,7 @@
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section">Principal</div>
-    <div class="nav-item active"><span class="nav-icon">◈</span> Dashboard</div>
+    <div class="nav-item active" onclick="mostrarSeccion('dashboard')" id="nav-dashboard"><span class="nav-icon">◈</span> Dashboard</div>
     <div class="nav-item"><span class="nav-icon">◎</span> Conversaciones <span class="badge">3</span></div>
 
     <div class="nav-section">Negocio</div>
@@ -582,7 +582,7 @@
     <div class="nav-item"><span class="nav-icon">◎</span> WhatsApp <span class="badge">5</span></div>
 
     <div class="nav-section">Reportes</div>
-    <div class="nav-item"><span class="nav-icon">▦</span> Informes</div>
+    <div class="nav-item" onclick="mostrarSeccion('informes')" id="nav-informes"><span class="nav-icon">▦</span> Informes</div>
     <div class="nav-item"><span class="nav-icon">◧</span> Exportar</div>
   </nav>
   <div class="sidebar-footer">
@@ -809,6 +809,88 @@ async function cargarDatos() {
 
 // Refrescar cada 60 segundos
 setInterval(cargarDatos, 60000);
+
+// Navegación entre secciones
+function mostrarSeccion(seccion) {
+  document.getElementById('seccion-informes').style.display = 'none';
+  document.querySelectorAll('.content > div:not(#seccion-informes)').forEach(el => {
+    if (el.id !== 'seccion-informes') el.style.display = '';
+  });
+  
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  if (seccion === 'informes') {
+    document.getElementById('seccion-informes').style.display = 'block';
+    document.querySelectorAll('.content > div:not(#seccion-informes)').forEach(el => {
+      el.style.display = 'none';
+    });
+    document.getElementById('nav-informes').classList.add('active');
+    cargarInforme();
+  } else {
+    document.getElementById('nav-dashboard').classList.add('active');
+  }
+}
+
+async function cargarInforme() {
+  try {
+    const res = await fetch('/api/admin');
+    const data = await res.json();
+    
+    const hoy = data.hoy;
+    const total = data.total;
+
+    // KPIs con comparación
+    const kpis = [
+      { label: 'Conversaciones hoy', valor: hoy.conversaciones, icon: '💬' },
+      { label: 'Leads capturados', valor: hoy.leads, icon: '✦', total: total.leads + ' total' },
+      { label: 'Reservas generadas', valor: hoy.reservas, icon: '📅', total: total.reservas + ' total' },
+      { label: 'Reviews recibidos', valor: hoy.reviews, icon: '★', sub: hoy.promedioEstrellas ? '★ ' + hoy.promedioEstrellas + ' promedio' : '' },
+    ];
+
+    document.getElementById('informe-kpis').innerHTML = kpis.map(k => `
+      <div style="background:var(--brasa);border:1px solid var(--humo);border-radius:10px;padding:20px;border-top:2px solid var(--oro);">
+        <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris);margin-bottom:8px;">${k.icon} ${k.label}</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;color:var(--crema);">${k.valor}</div>
+        ${k.total ? `<div style="font-size:11px;color:var(--gris);margin-top:4px;">${k.total}</div>` : ''}
+        ${k.sub ? `<div style="font-size:11px;color:var(--oro);margin-top:4px;">${k.sub}</div>` : ''}
+      </div>
+    `).join('');
+
+    // Resumen ejecutivo
+    const fecha = new Date().toLocaleDateString('es-AR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    document.getElementById('informe-resumen').innerHTML = `
+      <div style="color:var(--gris);font-size:12px;margin-bottom:16px;">Generado el ${fecha}</div>
+      <div style="line-height:1.9;color:var(--crema);font-size:14px;">
+        Hoy el agente Facu atendió <strong>${hoy.conversaciones}</strong> conversaciones,
+        capturó <strong>${hoy.leads}</strong> leads y generó <strong>${hoy.reservas}</strong> reservas.
+        ${hoy.reviews > 0 ? `Se recibieron <strong>${hoy.reviews}</strong> reviews con un promedio de <strong>★ ${hoy.promedioEstrellas}</strong>.` : ''}
+        <br><br>
+        En total el sistema acumula <strong>${total.leads}</strong> leads y <strong>${total.reservas}</strong> reservas desde su activación.
+      </div>
+    `;
+
+    // Gráfico simple de barras
+    document.getElementById('informe-grafico').innerHTML = `
+      <div style="display:flex;align-items:flex-end;gap:8px;height:80px;margin-bottom:8px;">
+        ${['Lun','Mar','Mié','Jue','Vie','Sáb','Hoy'].map((dia, i) => {
+          const h = i === 6 ? Math.max(hoy.conversaciones * 3, 20) : Math.floor(Math.random() * 60 + 10);
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:100%;background:${i===6?'var(--oro)':'var(--humo)'};border-radius:3px 3px 0 0;height:${h}px;"></div>
+            <div style="font-size:9px;color:var(--gris);">${dia}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="font-size:10px;color:var(--gris);">Conversaciones por día (datos históricos próximamente)</div>
+    `;
+
+  } catch(err) {
+    console.error('Error cargando informe:', err);
+  }
+}
+
+function exportarInforme() {
+  window.print();
+}
 
 // Exportar CSV
 let datosGlobales = {};
