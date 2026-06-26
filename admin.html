@@ -463,6 +463,97 @@
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: var(--carbon); }
   ::-webkit-scrollbar-thumb { background: var(--humo); border-radius: 3px; }
+
+  /* ===== RESPONSIVO MOBILE ===== */
+  @media (max-width: 768px) {
+    body { flex-direction: column; }
+
+    /* Ocultar sidebar en mobile */
+    .sidebar { display: none; }
+
+    /* Main ocupa todo */
+    .main { margin-left: 0; }
+
+    /* Topbar mobile */
+    .topbar { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+    .topbar-title { font-size: 16px; }
+    .date-badge { font-size: 10px; padding: 4px 8px; }
+
+    /* Content padding */
+    .content { padding: 16px; }
+
+    /* KPIs en 2 columnas */
+    .kpi-row { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .kpi-value { font-size: 24px; }
+
+    /* Grids en 1 columna */
+    .grid-2 { grid-template-columns: 1fr; gap: 12px; }
+    .grid-3-1 { grid-template-columns: 1fr; gap: 12px; }
+
+    /* Tabla de leads scroll horizontal */
+    .panel { overflow-x: auto; }
+    .table th, .table td { padding: 8px 10px; font-size: 11px; }
+
+    /* Reservas */
+    .res-time { font-size: 14px; min-width: 40px; }
+    .res-name { font-size: 12px; }
+    .res-detail { font-size: 10px; }
+
+    /* Social items */
+    .social-item { padding: 10px 14px; }
+    .social-name { font-size: 11px; }
+    .social-msg { font-size: 10px; }
+
+    /* Reviews */
+    .review-item { padding: 10px 14px; }
+    .review-text { font-size: 11px; }
+
+    /* Alert banner */
+    .alert-banner { font-size: 11px; padding: 10px 14px; }
+
+    /* Panel header */
+    .panel-header { padding: 12px 14px; }
+    .panel-title { font-size: 11px; }
+
+    /* Reservas list */
+    .reserva-item { padding: 10px 14px; gap: 10px; }
+
+    /* Nav mobile — botón hamburguesa */
+    .mobile-nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px; height: 36px;
+      background: var(--brasa);
+      border: 1px solid var(--humo);
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--crema);
+      font-size: 18px;
+    }
+
+    /* Sidebar mobile overlay */
+    .sidebar.mobile-open {
+      display: flex;
+      z-index: 100;
+      width: 260px;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 99;
+    }
+
+    .sidebar-overlay.active { display: block; }
+  }
+
+  @media (min-width: 769px) {
+    .mobile-nav-btn { display: none; }
+    .sidebar-overlay { display: none !important; }
+  }
 </style>
 </head>
 <body onload="cargarDatos()">
@@ -502,7 +593,7 @@
 <!-- MAIN -->
 <main class="main">
   <div class="topbar">
-    <div class="topbar-title">Dashboard</div>
+    <div style="display:flex;align-items:center;gap:12px;"><button class="mobile-nav-btn" onclick="toggleNav()">☰</button><div class="topbar-title">Dashboard</div></div>
     <div class="topbar-right">
       <div class="date-badge">Jueves 25 junio 2026 · Servicio de noche</div>
       <div class="manager-pill">
@@ -716,6 +807,13 @@ async function cargarDatos() {
 
 // Refrescar cada 60 segundos
 setInterval(cargarDatos, 60000);
+</script>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleNav()"></div>
+<script>
+function toggleNav() {
+  document.querySelector('.sidebar').classList.toggle('mobile-open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
 </script>
 </body>
 </html>
