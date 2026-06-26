@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { overflow-x: hidden; max-width: 100vw; }
+  html, body { width: 100%; overflow-x: hidden; }
 
   body {
     font-family: 'Inter', sans-serif;
@@ -415,9 +415,9 @@
       rows="1"
       onkeydown="handleKey(event)"
       oninput="autoResize(this)"
-      style="flex:1;min-width:0;background:#1E1A16;border:1px solid #2A2420;border-radius:10px;padding:10px 14px;color:#F2E8D9;font-size:14px;font-family:Inter,sans-serif;resize:none;min-height:40px;max-height:100px;outline:none;box-sizing:border-box;"
+      style="flex:1;min-width:0;width:0;background:#1E1A16;border:1px solid #2A2420;border-radius:10px;padding:10px 14px;color:#F2E8D9;font-size:14px;font-family:Inter,sans-serif;resize:none;min-height:40px;max-height:100px;outline:none;box-sizing:border-box;"
     ></textarea>
-    <button id="sendBtn" onclick="sendMessage()" style="width:40px;height:40px;min-width:40px;background:#A52020;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0;">➤</button>
+    <button id="sendBtn" onclick="sendMessage()" style="width:40px;height:40px;min-width:40px;flex-shrink:0;background:#A52020;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;">➤</button>
   </div>
 
   <div class="chat-footer">Powered by RBS · Roxana Brand Studios</div>
