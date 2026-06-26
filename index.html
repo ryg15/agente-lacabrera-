@@ -161,13 +161,19 @@
     document.getElementById('landing').style.display = 'flex';
   }
 
+  function linkify(text) {
+    return text
+      .replace(/\n/g, '<br>')
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:#E8B866;text-decoration:underline;word-break:break-all;">$1</a>');
+  }
+
   function addMsg(role, text) {
     const msgs = document.getElementById('msgs');
     const row = document.createElement('div');
     row.className = 'row ' + role;
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.innerHTML = text.replace(/\n/g, '<br>');
+    bubble.innerHTML = linkify(text);
     row.appendChild(bubble);
     msgs.appendChild(row);
     msgs.scrollTop = msgs.scrollHeight;
