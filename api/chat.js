@@ -169,18 +169,34 @@ async function guardarEnSupabase(tabla, datos) {
   if (error) console.error(`Error guardando en ${tabla}:`, error);
 }
 
+function extraerJSON(texto, tag) {
+  const idx = texto.indexOf(tag + ":");
+  if (idx === -1) return null;
+  const start = texto.indexOf("{", idx);
+  if (start === -1) return null;
+  let depth = 0;
+  for (let i = start; i < texto.length; i++) {
+    if (texto[i] === "{") depth++;
+    else if (texto[i] === "}") {
+      depth--;
+      if (depth === 0) return texto.substring(start, i + 1);
+    }
+  }
+  return null;
+}
+
 function extraerTags(texto) {
-  const reservaMatch = texto.match(/GUARDAR_RESERVA:({.*?})/s);
-  const leadMatch = texto.match(/GUARDAR_LEAD:({.*?})/s);
-  const reviewMatch = texto.match(/GUARDAR_REVIEW:({.*?})/s);
-  return { reservaMatch, leadMatch, reviewMatch };
+  const reservaJSON = extraerJSON(texto, "GUARDAR_RESERVA");
+  const leadJSON = extraerJSON(texto, "GUARDAR_LEAD");
+  const reviewJSON = extraerJSON(texto, "GUARDAR_REVIEW");
+  return { reservaJSON, leadJSON, reviewJSON };
 }
 
 function limpiarRespuesta(texto) {
   return texto
-    .replace(/GUARDAR_RESERVA:{.*?}/s, "")
-    .replace(/GUARDAR_LEAD:{.*?}/s, "")
-    .replace(/GUARDAR_REVIEW:{.*?}/s, "")
+    .replace(/GUARDAR_RESERVA:\s*\{[\s\S]*?\}(?=\s|$)/g, "")
+    .replace(/GUARDAR_LEAD:\s*\{[\s\S]*?\}(?=\s|$)/g, "")
+    .replace(/GUARDAR_REVIEW:\s*\{[\s\S]*?\}(?=\s|$)/g, "")
     .trim();
 }
 
@@ -218,30 +234,33 @@ module.exports = async (req, res) => {
     });
 
     const rawText = response.content[0].text;
-    const { reservaMatch, leadMatch, reviewMatch } = extraerTags(rawText);
+    const { reservaJSON, leadJSON, reviewJSON } = extraerTags(rawText);
 
     // Guardar reserva
-    if (reservaMatch) {
+    if (reservaJSON) {
       try {
-        const datos = JSON.parse(reservaMatch[1]);
+        const datos = JSON.parse(reservaJSON);
         await guardarEnSupabase("reservas", datos);
-      } catch (e) { console.error("Error parseando reserva:", e); }
+        console.log("Reserva guardada:", datos);
+      } catch (e) { console.error("Error parseando reserva:", e, reservaJSON); }
     }
 
     // Guardar lead
-    if (leadMatch) {
+    if (leadJSON) {
       try {
-        const datos = JSON.parse(leadMatch[1]);
+        const datos = JSON.parse(leadJSON);
         await guardarEnSupabase("leads", datos);
-      } catch (e) { console.error("Error parseando lead:", e); }
+        console.log("Lead guardado:", datos);
+      } catch (e) { console.error("Error parseando lead:", e, leadJSON); }
     }
 
     // Guardar review
-    if (reviewMatch) {
+    if (reviewJSON) {
       try {
-        const datos = JSON.parse(reviewMatch[1]);
+        const datos = JSON.parse(reviewJSON);
         await guardarEnSupabase("reviews", datos);
-      } catch (e) { console.error("Error parseando review:", e); }
+        console.log("Review guardado:", datos);
+      } catch (e) { console.error("Error parseando review:", e, reviewJSON); }
     }
 
     // Guardar conversación
