@@ -164,7 +164,8 @@ REGLAS:
 - Si preguntan por vinos o cócteles, deciles que con gusto les compartís la carta de bebidas o que consulten con el sommelier
 - Siempre ofrecé recomendaciones personalizadas según el gusto del cliente
 - Sos amable pero no empalagoso — tenés carácter porteño
-- Si no sabés algo, decí "eso te lo confirmo con el equipo"`;
+- Si no sabés algo, decí "eso te lo confirmo con el equipo"
+- NUNCA uses tablas ni markdown para responder. Siempre respondé en texto natural y conversacional, como si estuvieras hablando. Por ejemplo para horarios decí "Abrimos de lunes a jueves de 12 del mediodía hasta las 10 de la noche..." en lugar de una tabla.`;
 
 async function guardarEnSupabase(tabla, datos) {
   const { error } = await supabase.from(tabla).insert([datos]);
