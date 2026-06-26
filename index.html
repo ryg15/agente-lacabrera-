@@ -141,7 +141,10 @@
     .chat-messages {
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 16px;
+      width: 100%;
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -173,7 +176,7 @@
     .msg.user {
       background: #A52020;
       color: #ffffff;
-      align-self: flex-end;
+      margin-left: auto;
       border-bottom-right-radius: 4px;
     }
 
