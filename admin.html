@@ -813,13 +813,19 @@ setInterval(cargarDatos, 60000);
 // Navegación entre secciones
 function mostrarSeccion(seccion) {
   document.getElementById('seccion-informes').style.display = 'none';
+  document.getElementById('seccion-disponibilidad').style.display = 'none';
   document.querySelectorAll('.content > div:not(#seccion-informes)').forEach(el => {
     if (el.id !== 'seccion-informes') el.style.display = '';
   });
   
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-  if (seccion === 'informes') {
+  if (seccion === 'disponibilidad') {
+    document.getElementById('seccion-disponibilidad').style.display = 'block';
+    document.querySelectorAll('.content > div:not(#seccion-informes):not(#seccion-disponibilidad)').forEach(el => el.style.display = 'none');
+    document.getElementById('nav-disponibilidad').classList.add('active');
+    cargarDisponibilidad();
+  } else if (seccion === 'informes') {
     document.getElementById('seccion-informes').style.display = 'block';
     document.querySelectorAll('.content > div:not(#seccion-informes)').forEach(el => {
       el.style.display = 'none';
@@ -885,6 +891,60 @@ async function cargarInforme() {
 
   } catch(err) {
     console.error('Error cargando informe:', err);
+  }
+}
+
+async function cargarDisponibilidad() {
+  const contenido = document.getElementById('disponibilidad-contenido');
+  contenido.innerHTML = '<div style="color:var(--gris);padding:20px;">Cargando...</div>';
+
+  try {
+    const res = await fetch('/api/disponibilidad');
+    const data = await res.json();
+
+    // Agrupar por categoría
+    const categorias = {};
+    data.forEach(p => {
+      if (!categorias[p.categoria]) categorias[p.categoria] = [];
+      categorias[p.categoria].push(p);
+    });
+
+    contenido.innerHTML = Object.entries(categorias).map(([cat, platos]) => `
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-header"><div class="panel-title">${cat}</div></div>
+        <div>
+          ${platos.map(p => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--humo);">
+              <span style="font-size:13px;color:${p.disponible ? 'var(--crema)' : 'var(--gris)'};${p.disponible ? '' : 'text-decoration:line-through;'}">${p.plato}</span>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <span style="font-size:11px;color:${p.disponible ? 'var(--verde-vivo)' : 'var(--rojo-vivo)'};">${p.disponible ? 'Disponible' : 'No disponible'}</span>
+                <div onclick="toggleDisponibilidad(${p.id}, ${p.disponible}, this)" style="width:36px;height:20px;border-radius:10px;background:${p.disponible ? '#40916C' : '#C0392B'};cursor:pointer;position:relative;transition:background 0.2s;">
+                  <div style="width:16px;height:16px;border-radius:50%;background:white;position:absolute;top:2px;${p.disponible ? 'right:2px;' : 'left:2px;'}transition:all 0.2s;"></div>
+                </div>
+              </label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+
+  } catch(err) {
+    contenido.innerHTML = '<div style="color:var(--rojo-vivo);padding:20px;">Error cargando disponibilidad</div>';
+  }
+}
+
+async function toggleDisponibilidad(id, actual, toggleEl) {
+  const nuevo = !actual;
+  try {
+    await fetch('/api/disponibilidad', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, disponible: nuevo })
+    });
+    // Recargar la sección
+    cargarDisponibilidad();
+  } catch(err) {
+    console.error('Error actualizando disponibilidad:', err);
   }
 }
 
