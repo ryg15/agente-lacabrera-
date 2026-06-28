@@ -237,6 +237,16 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // Consultar platos no disponibles
+    const { data: noDisponibles } = await supabase
+      .from("menu_disponibilidad")
+      .select("plato, categoria")
+      .eq("disponible", false);
+
+    const alertaMenu = noDisponibles && noDisponibles.length > 0
+      ? `\n\nPLATOS NO DISPONIBLES HOY (informá al cliente si los pide): ${noDisponibles.map(p => p.plato).join(", ")}.`
+      : "";
+
     const ahora = new Date().toLocaleString("es-AR", {
       timeZone: "America/New_York",
       weekday: "long",
@@ -247,7 +257,7 @@ module.exports = async (req, res) => {
       minute: "2-digit"
     });
 
-    const systemConFecha = SYSTEM_PROMPT + `\n\nFECHA Y HORA ACTUAL: ${ahora} (hora de Miami).`;
+    const systemConFecha = SYSTEM_PROMPT + `\n\nFECHA Y HORA ACTUAL: ${ahora} (hora de Miami).` + alertaMenu;
 
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
