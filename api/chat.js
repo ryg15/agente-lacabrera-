@@ -320,10 +320,9 @@ module.exports = async (req, res) => {
       } catch (e) { console.error("Error parseando review:", e, reviewJSON); }
     }
 
-    // Guardar conversación solo cuando termina (múltiplo de 10 o tiene reserva/lead)
-    const esHito = reservaJSON || leadJSON || messages.length % 10 === 0;
-    if (esHito && messages.length >= 2) {
-      const resumen = `Conversación ${new Date().toLocaleString("es-AR")} — ${messages.length} mensajes`;
+    // Guardar conversación solo en el primer mensaje del cliente
+    if (messages.length === 1) {
+      const resumen = `Conversación ${new Date().toLocaleString("es-AR")} — iniciada`;
       await guardarEnSupabase("conversaciones", {
         resumen,
         mensajes: JSON.stringify(messages),
