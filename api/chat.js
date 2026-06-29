@@ -330,7 +330,21 @@ module.exports = async (req, res) => {
       });
     }
 
-    const textoLimpio = limpiarRespuesta(rawText);
+    let textoLimpio = limpiarRespuesta(rawText);
+
+    // Si Facu se despide y no hubo reserva ni lead, inyectar pedido de datos
+    const palabrasDespedida = ['hasta luego', 'hasta pronto', 'hasta la próxima', 'hasta la proxima', 'buenas noches', 'buen provecho', 'que lo disfruten', 'que la pasen'];
+    const seDesprida = palabrasDespedida.some(p => textoLimpio.toLowerCase().includes(p));
+    const yaHayReserva = !!reservaJSON;
+    const yaHayLead = !!leadJSON;
+    const yaPidioLeadEnConversacion = messages.some(m => 
+      m.role === 'assistant' && m.content && m.content.toLowerCase().includes('dejame tu nombre y teléfono')
+    );
+
+    if (seDesprida && !yaHayReserva && !yaHayLead && !yaPidioLeadEnConversacion) {
+      textoLimpio = textoLimpio + '\n\nPor cierto, si querés recibir novedades y promociones de La Cabrera, dejame tu nombre y teléfono y te mantenemos al tanto. 😊';
+    }
+
     return res.status(200).json({ response: textoLimpio });
 
   } catch (error) {
