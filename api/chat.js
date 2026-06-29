@@ -269,21 +269,45 @@ module.exports = async (req, res) => {
     const rawText = response.content[0].text;
     const { reservaJSON, leadJSON, reviewJSON } = extraerTags(rawText);
 
-    // Guardar reserva
+    // Guardar reserva (verificar duplicado por nombre + telefono)
     if (reservaJSON) {
       try {
         const datos = JSON.parse(reservaJSON);
-        await guardarEnSupabase("reservas", datos);
-        console.log("Reserva guardada:", datos);
+        // Chequear si ya existe
+        const { data: existente } = await supabase
+          .from("reservas")
+          .select("id")
+          .eq("nombre", datos.nombre)
+          .eq("telefono", datos.telefono)
+          .eq("fecha", datos.fecha)
+          .limit(1);
+        
+        if (!existente || existente.length === 0) {
+          await guardarEnSupabase("reservas", datos);
+          console.log("Reserva guardada:", datos);
+        } else {
+          console.log("Reserva duplicada ignorada:", datos.nombre);
+        }
       } catch (e) { console.error("Error parseando reserva:", e, reservaJSON); }
     }
 
-    // Guardar lead
+    // Guardar lead (verificar duplicado por nombre + telefono)
     if (leadJSON) {
       try {
         const datos = JSON.parse(leadJSON);
-        await guardarEnSupabase("leads", datos);
-        console.log("Lead guardado:", datos);
+        const { data: existente } = await supabase
+          .from("leads")
+          .select("id")
+          .eq("nombre", datos.nombre)
+          .eq("telefono", datos.telefono || "")
+          .limit(1);
+        
+        if (!existente || existente.length === 0) {
+          await guardarEnSupabase("leads", datos);
+          console.log("Lead guardado:", datos);
+        } else {
+          console.log("Lead duplicado ignorado:", datos.nombre);
+        }
       } catch (e) { console.error("Error parseando lead:", e, leadJSON); }
     }
 
@@ -296,8 +320,9 @@ module.exports = async (req, res) => {
       } catch (e) { console.error("Error parseando review:", e, reviewJSON); }
     }
 
-    // Guardar conversación
-    if (messages.length >= 2) {
+    // Guardar conversación solo cuando termina (múltiplo de 10 o tiene reserva/lead)
+    const esHito = reservaJSON || leadJSON || messages.length % 10 === 0;
+    if (esHito && messages.length >= 2) {
       const resumen = `Conversación ${new Date().toLocaleString("es-AR")} — ${messages.length} mensajes`;
       await guardarEnSupabase("conversaciones", {
         resumen,
