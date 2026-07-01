@@ -330,16 +330,31 @@ module.exports = async (req, res) => {
 
     let textoLimpio = limpiarRespuesta(rawText);
 
-    // Inyectar pedido de leads si Facu se despide sin reserva ni lead
-    const palabrasDespedida = ['hasta luego', 'hasta pronto', 'hasta la proxima', 'buenas noches', 'buen provecho', 'que lo disfruten', 'que la pasen'];
+    const palabrasDespedida = ['hasta luego', 'hasta pronto', 'hasta la proxima', 'buenas noches', 'buen provecho', 'que lo disfruten', 'que la pasen', 'los esperamos', 'nos vemos', 'que disfruten', 'linda noche', 'gracias por escribir'];
     const seDesprida = palabrasDespedida.some(p => textoLimpio.toLowerCase().includes(p));
     const yaHayReserva = !!reservaJSON;
     const yaHayLead = !!leadJSON;
+
+    // Si hay reserva en la conversacion pero Facu se despide sin confirmarla, inyectar confirmacion
+    const hayReservaEnConversacion = messages.some(m =>
+      m.role === 'assistant' && m.content && m.content.toLowerCase().includes('guardar_reserva')
+    ) || yaHayReserva;
+
+    const yaConfirmo = messages.some(m =>
+      m.role === 'assistant' && m.content && m.content.toLowerCase().includes('ya tengo todo anotado')
+    );
+
+    if (seDesprida && hayReservaEnConversacion && !yaConfirmo) {
+      textoLimpio = 'Ya tengo todo anotado. El equipo te va a contactar para confirmar la disponibilidad.' +
+        (textoLimpio.includes('esperamos') || textoLimpio.includes('noche') ? '' : '\n\n' + textoLimpio);
+    }
+
+    // Inyectar pedido de leads si se despide sin reserva ni lead
     const yaPidioLead = messages.some(m =>
       m.role === 'assistant' && m.content && m.content.toLowerCase().includes('dejame tu nombre y telefono')
     );
 
-    if (seDesprida && !yaHayReserva && !yaHayLead && !yaPidioLead) {
+    if (seDesprida && !hayReservaEnConversacion && !yaHayLead && !yaPidioLead) {
       textoLimpio = textoLimpio + '\n\nPor cierto, si queres recibir novedades y promociones de La Cabrera, dejame tu nombre y telefono y te mantenemos al tanto.';
     }
 
